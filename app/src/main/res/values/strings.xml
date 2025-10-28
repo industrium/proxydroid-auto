@@ -2,7 +2,7 @@
 <resources>
 
     <!-- app string -->
-    <string name="app_name">ProxyDroid Plus</string>
+    <string name="app_name">ProxyDroid Auto</string>
     <string name="ok_iknow">OK, I know</string>
     <string name="feedback">Feedback @ofmax</string>
 
@@ -40,6 +40,8 @@
     <string name="connect">Connect</string>
     <string name="service_controller">Proxy Switch</string>
     <string name="service_summary">Enable / Disable Proxy</string>
+    <string name="autobooton_brief">Auto-Enable on Boot</string>
+    <string name="autobooton_summary">Launch and enable automatically on boot</string>
 
     <!-- settings proxy category -->
     <string name="proxy_cat">Proxy Settings</string>

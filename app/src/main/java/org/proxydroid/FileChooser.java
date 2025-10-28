@@ -41,7 +41,6 @@ public class FileChooser extends AppCompatActivity {
 
 	}
 
-
 	public static class FileChooserFragment extends ListFragment {
 
 		private File currentDir;
@@ -125,7 +124,4 @@ public class FileChooser extends AppCompatActivity {
 			}
 		}
 	}
-
-
-
 }

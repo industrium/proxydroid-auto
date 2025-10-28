@@ -1,60 +1,55 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-//apply plugin: 'io.fabric'
 android {
-    compileSdk 34
-    defaultConfig {
-        namespace "org.proxydroid"
-        applicationId "org.proxydroid"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 72
-        versionName "1.0.0"
-        multiDexEnabled true
-        ndk {
-            // Specifies the ABI configurations of your native
-            // libraries Gradle should build and package with your APK.
-            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-        }
-    }
-    buildTypes {
-        release {
-            //multiDexKeepFile file('multidex-config.txt')
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
-    }
+	compileSdk 34
 
-    externalNativeBuild {
-        cmake {
-            version '3.28.0'
-            path "src/main/cpp/CMakeLists.txt"
-        }
-    }
-}
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute module('org.hamcrest:hamcrest-core:1.1') using module('junit:junit:4.10')
-    }
-}
-configurations {
-    compile.exclude group: "junit", module: "junit"
+	defaultConfig {
+		namespace "org.proxydroid"
+		applicationId "org.proxydroid.auto"
+		minSdkVersion 21
+		targetSdkVersion 34
+		versionCode 1
+		versionName "1.0.0"
+	}
+	signingConfigs {
+		common {
+			storeFile file(PROXY_KEYSTORE_PATH)
+			storePassword PROXY_KEYSTORE_PASSWORD
+			keyAlias PROXY_KEY_ALIAS
+			keyPassword PROXY_KEY_PASSWORD
+		}
+	}
+	buildTypes {
+		debug {
+			minifyEnabled false
+			shrinkResources false
+			signingConfig signingConfigs.common
+		}
+		release {
+			minifyEnabled true
+			shrinkResources true
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+			signingConfig signingConfigs.common
+		}
+	}
+
+	applicationVariants.all { variant ->
+		variant.outputs.all { output ->
+			outputFileName = "ProxyDroidAuto.apk"
+		}
+	}
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    implementation 'org.mozilla:rhino:1.7.11'
-    implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-analytics:22.4.0'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.test.ext:junit:1.2.1'
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
+	implementation 'androidx.core:core:1.13.0'
+	implementation 'androidx.preference:preference:1.2.1'
+	implementation 'org.mozilla:rhino:1.7.11'
+	implementation "com.github.topjohnwu.libsu:core:6.0.0"
+}
+
+configurations.all {
+	resolutionStrategy {
+		force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22"
+	}
 }

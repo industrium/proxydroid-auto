@@ -1,4 +1,5 @@
 /* Copyright (c) 2009, Nathan Freitas, Orbot / The Guardian Project - http://openideals.com/guardian */
+/* Copyright (C) 2025 Igor Baranov <industrium@gmail.com> */
 /* See LICENSE for licensing information */
 
 package org.proxydroid;
@@ -35,8 +36,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.proxydroid.utils.ImageLoader;
 import org.proxydroid.utils.ImageLoaderFactory;
@@ -162,7 +161,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 								PixelFormat.TRANSLUCENT));
 
 		mAppManager = this;
-
 	}
 	
 	/** Called when the activity is closed. */
@@ -191,7 +189,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 				handler.sendEmptyMessage(MSG_LOAD_FINISH);
 			}
 		}.start();
-
 	}
 
 	private void loadApps() {
@@ -260,7 +257,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 		};
 
 		appsLoaded = true;
-
 	}
 
 	private static class ListEntry {
@@ -405,7 +401,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 
 		apps = new ProxyedApp[vectorApps.size()];
 		vectorApps.toArray(apps);
-
 	}
 
 	public void saveAppSettings(Context context) {
@@ -430,7 +425,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 		Editor edit = prefs.edit();
 		edit.putString(PREFS_KEY_PROXYED, tordApps.toString());
 		edit.commit();
-
 	}
 
 	/**
@@ -444,7 +438,6 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 		}
 
 		saveAppSettings(this);
-
 	}
 
 	@Override
@@ -459,7 +452,5 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 		}
 
 		saveAppSettings(this);
-
 	}
-
 }

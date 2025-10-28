@@ -1,4 +1,5 @@
 /* proxydroid - Global / Individual Proxy App for Android
+ * Copyright (C) 2025 Igor Baranov <industrium@gmail.com>
  * Copyright (C) 2011 Max Lv <max.c.lv@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,27 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- *                            ___====-_  _-====___
- *                      _--^^^#####//      \\#####^^^--_
- *                   _-^##########// (    ) \\##########^-_
- *                  -############//  |\^^/|  \\############-
- *                _/############//   (@::@)   \\############\_
- *               /#############((     \\//     ))#############\
- *              -###############\\    (oo)    //###############-
- *             -#################\\  / VV \  //#################-
- *            -###################\\/      \//###################-
- *           _#/|##########/\######(   /\   )######/\##########|\#_
- *           |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
- *           `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
- *              `   `  `      `   / | |  | | \   '      '  '   '
- *                               (  | |  | |  )
- *                              __\ | |  | | /__
- *                             (vvv(VVV)(VVV)vvv)
- *
- *                              HERE BE DRAGONS
- *
  */
 
 package org.proxydroid;
@@ -313,7 +293,6 @@ public class ProxyDroidService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         basePath = getFilesDir().getAbsolutePath() + "/";
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -330,10 +309,6 @@ public class ProxyDroidService extends Service {
      */
     @Override
     public void onDestroy() {
-
-        ((ProxyDroidApplication)getApplication())
-                .firebaseAnalytics.logEvent("service_stop", null);
-
         Utils.setConnecting(true);
 
         notificationManager.cancelAll();
@@ -341,7 +316,6 @@ public class ProxyDroidService extends Service {
 
         // Make sure the connection is closed, important here
         onDisconnect();
-
 
         SharedPreferences.Editor ed = settings.edit();
         ed.putBoolean("isRunning", false);
@@ -358,7 +332,6 @@ public class ProxyDroidService extends Service {
         Utils.setConnecting(false);
 
         super.onDestroy();
-
     }
 
     private void onDisconnect() {
@@ -499,9 +472,6 @@ public class ProxyDroidService extends Service {
         if (isServiceStarted() || intent == null || intent.getExtras() == null) {
             return START_NOT_STICKY;
         }
-
-        ((ProxyDroidApplication)getApplication())
-                .firebaseAnalytics.logEvent("service_start", null);
 
         Log.d(TAG, "Service Start");
 

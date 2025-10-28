@@ -1,4 +1,5 @@
 /* proxydroid - Global / Individual Proxy App for Android
+ * Copyright (C) 2025 Igor Baranov <industrium@gmail.com>
  * Copyright (C) 2011 Max Lv <max.c.lv@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -77,8 +78,6 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.proxydroid.utils.Utils;
 
@@ -232,10 +231,6 @@ public class ProxyDroid extends PreferenceFragmentCompat
         super.onCreate(savedInstanceState);
 
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "home_screen");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "ProxyDroid");
-        ((ProxyDroidApplication)requireActivity().getApplication())
-                .firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
 
         hostText = findPreference("host");
         portText = findPreference("port");
@@ -549,8 +544,6 @@ public class ProxyDroid extends PreferenceFragmentCompat
 
         return super.onPreferenceTreeClick(preference);
     }
-
-
 
     @Override
     public void onResume() {

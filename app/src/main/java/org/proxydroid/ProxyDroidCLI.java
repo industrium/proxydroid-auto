@@ -1,4 +1,5 @@
 /* proxydroid - Global / Individual Proxy App for Android
+ * Copyright (C) 2025 Igor Baranov <industrium@gmail.com>
  * Copyright (C) 2011 Max Lv <max.c.lv@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,58 +14,32 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
- *                            ___====-_  _-====___
- *                      _--^^^#####//      \\#####^^^--_
- *                   _-^##########// (    ) \\##########^-_
- *                  -############//  |\^^/|  \\############-
- *                _/############//   (@::@)   \\############\_
- *               /#############((     \\//     ))#############\
- *              -###############\\    (oo)    //###############-
- *             -#################\\  / VV \  //#################-
- *            -###################\\/      \//###################-
- *           _#/|##########/\######(   /\   )######/\##########|\#_
- *           |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
- *           `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
- *              `   `  `      `   / | |  | | \   '      '  '   '
- *                               (  | |  | |  )
- *                              __\ | |  | | /__
- *                             (vvv(VVV)(VVV)vvv)
- *
- *                              HERE BE DRAGONS
- *
  */
 
 package org.proxydroid;
 
+import android.util.Log;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 
 import androidx.preference.PreferenceManager;
 
 import org.proxydroid.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class ProxyDroidCLI extends BroadcastReceiver {
-	public static final String TOGGLE_ACTION = "org.proxydroid.TOGGLE_STATE";
-	public static final String CONFIG_ACTION = "org.proxydroid.PROFILE_CONFIGURE";
-	public static final String PROFILE_ACTION = "org.proxydroid.PROFILE_CHANGE";
+	private static final String TAG = "ProxyDroidCLI";
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(intent == null) return;
-		if(TOGGLE_ACTION.equals(intent.getAction())) {
-			boolean toggleStart = intent.getBooleanExtra("start", true);
-			if (toggleStart) {
+		Log.d(TAG, "onReceive: " + intent);
+
+		if (intent == null) return;
+		if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			if (prefs.getBoolean("pref_autostart", false)) {
 				if (!Utils.isWorking()) {
 					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -112,126 +87,6 @@ public class ProxyDroidCLI extends BroadcastReceiver {
 					}
 				}
 			}
-		} else if(CONFIG_ACTION.equals(intent.getAction())) {
-			if(Utils.isWorking()) {
-				return;
-			}
-
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			Profile profile = new Profile();
-			profile.getProfile(settings);
-
-			String host = intent.getStringExtra("host");
-			if(host == null) host = profile.getHost();
-			profile.setHost(host);
-
-			int port = intent.getIntExtra("port", profile.getPort());
-			if(port < 1) port = profile.getPort();
-			profile.setPort(port);
-
-			String user = intent.getStringExtra("user");
-			if(user == null) user = profile.getUser();
-			profile.setUser(user);
-
-			String password = intent.getStringExtra("password");
-			if(password == null) password = profile.getPassword();
-			profile.setPassword(password);
-
-			String domain = intent.getStringExtra("domain");
-			if(domain == null) domain = profile.getDomain();
-			profile.setDomain(domain);
-
-			String certificate = intent.getStringExtra("certificate");
-			if (certificate == null) certificate = profile.getCertificate();
-			profile.setCertificate(certificate);
-
-			String bypassAddrs = intent.getStringExtra("bypassAddrs");
-			if (bypassAddrs == null) bypassAddrs = profile.getBypassAddrs();
-			profile.setBypassAddrs(bypassAddrs);
-
-			String proxyType = intent.getStringExtra("proxyType");
-			if (proxyType == null || !Arrays.asList("http", "https", "http-tunnel", "socks4", "socks5").contains(proxyType)) {
-				proxyType = profile.getProxyType();
-			}
-			profile.setProxyType(proxyType);
-
-			boolean isGlobalProxy = intent.getBooleanExtra("isGlobalProxy", profile.isGlobalProxy());
-			profile.setGlobalProxy(isGlobalProxy);
-
-			boolean isBypassApps = intent.getBooleanExtra("isBypassApps", profile.isBypassApps());
-			profile.setBypassApps(isBypassApps);
-
-			boolean isAuth = intent.getBooleanExtra("isAuth", profile.isAuth());
-			profile.setAuth(isAuth);
-
-			boolean isNTLM = intent.getBooleanExtra("isNTLM", profile.isNTLM());
-			profile.setNTLM(isNTLM);
-
-			boolean isPAC = intent.getBooleanExtra("isPAC", profile.isPAC());
-			profile.setPAC(isPAC);
-
-			String proxyedApps = intent.getStringExtra("proxyedApps");
-			if (proxyedApps != null) {
-				String[] packages = proxyedApps.split("//|");
-				ArrayList<String> validApps = new ArrayList<>();
-				try {
-					PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-					validApps.add(context.getPackageManager().getNameForUid(pi.applicationInfo.uid));
-				} catch (PackageManager.NameNotFoundException ignored) {
-
-				}
-				proxyedApps = String.join("|", validApps);
-
-			} else
-				proxyedApps = profile.getProxyedApps();
-			profile.setProxyedApps(proxyedApps);
-
-			profile.setProfile(settings);
-
-		} else if(PROFILE_ACTION.equals(intent.getAction())) {
-			if(Utils.isWorking()) return;
-
-			String action = intent.getStringExtra("action");
-			if("switch".equals(action)) {
-				int profileId = intent.getIntExtra("profileId", 1);
-				if(profileId < 1) profileId = 1;
-
-				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-				String oldProfileId = settings.getString("profile", "1");
-
-		        settings.edit().putString("profile", Integer.toString(profileId)).commit();
-				boolean ret = Profile.ProfileUtils.switchProfile(oldProfileId, Integer.toString(profileId), context);
-				if(ret) {
-					setResultData("SUCCESS");
-				} else {
-					setResultData("FAILURE");
-				}
-
-			} else if("rename".equals(action)) {
-				String profileId = PreferenceManager.getDefaultSharedPreferences(context).getString("profile", "1");
-
-				String newName = intent.getStringExtra("newName");
-				if(newName == null || newName.isEmpty()) {
-					setResultData("INVALID_NAME");
-					return;
-				}
-				newName = newName.replace("|", "");
-
-				Profile.ProfileUtils.renameProfile(profileId, newName, context);
-
-				setResultData("SUCCESS");
-			} else if("delete".equals(action)) {
-				String profileId = PreferenceManager.getDefaultSharedPreferences(context).getString("profile", "1");
-				Profile.ProfileUtils.delProfile(profileId, context);
-				setResultData("SUCCESS");
-
-			} else if("add".equals(action)) {
-				Profile.ProfileUtils.addProfile(context);
-			}
-
-			PreferenceManager.getDefaultSharedPreferences(context).edit().putLong("profileChange", SystemClock.uptimeMillis()).commit();
-
 		}
 	}
-
 }

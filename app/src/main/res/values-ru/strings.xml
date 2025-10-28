@@ -2,7 +2,7 @@
 <resources>
 
     <!-- app string -->
-    <string name="app_name">ProxyDroid Plus</string>
+    <string name="app_name">ProxyDroid Auto</string>
     <string name="ok_iknow">Хорошо</string>
     <string name="feedback">Feedback @ofmax</string>
 
@@ -42,6 +42,8 @@
     <string name="connect">Включить</string>
     <string name="service_controller">Вкл/Выкл</string>
     <string name="service_summary">Изменить состояние прокси</string>
+    <string name="autobooton_brief">Автовключение при старте системы</string>
+    <string name="autobooton_summary">Запускать и включать автоматически при загрузке устройства</string>
 
     <!-- settings proxy category -->
     <string name="proxy_cat">Настройки прокси</string>

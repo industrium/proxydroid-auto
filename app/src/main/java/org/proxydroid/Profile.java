@@ -1,4 +1,5 @@
 /* proxydroid - Global / Individual Proxy App for Android
+ * Copyright (C) 2025 Igor Baranov <industrium@gmail.com>
  * Copyright (C) 2011 K's Maze <kafkasmaze@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,9 +25,8 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -104,7 +104,7 @@ public class Profile implements Serializable {
 		ed.putBoolean("isNTLM", isNTLM);
 		ed.putString("domain", domain);
 		ed.putString("proxyType", proxyType);
-                ed.putString("certificate", certificate);
+		ed.putString("certificate", certificate);
 		ed.putBoolean("isGlobalProxy", isGlobalProxy);
 		ed.putBoolean("isBypassApps", isBypassApps);
 		ed.putBoolean("isPAC", isPAC);
@@ -117,7 +117,7 @@ public class Profile implements Serializable {
 		user = "";
 		domain = "";
 		password = "";
-                certificate = "";
+		certificate = "";
 		isAuth = false;
 		proxyType = "http";
 		isNTLM = false;
@@ -128,67 +128,54 @@ public class Profile implements Serializable {
 
 	@Override
 	public String toString() {
-		return this.encodeJson().toJSONString();
+		return this.encodeJson().toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public JSONObject encodeJson() {
 		JSONObject obj = new JSONObject();
-		obj.put("name", name);
-		obj.put("host", host);
-		obj.put("proxyType", proxyType);
-		obj.put("user", user);
-		obj.put("password", password);
-		obj.put("domain", domain);
-                obj.put("certificate", certificate);
-		obj.put("bypassAddrs", bypassAddrs);
-		obj.put("Proxyed", proxyedApps);
+		try {
+			obj.put("name", name);
+			obj.put("host", host);
+			obj.put("proxyType", proxyType);
+			obj.put("user", user);
+			obj.put("password", password);
+			obj.put("domain", domain);
+			obj.put("certificate", certificate);
+			obj.put("bypassAddrs", bypassAddrs);
+			obj.put("Proxyed", proxyedApps);
 
-		obj.put("isAuth", isAuth);
-		obj.put("isNTLM", isNTLM);
-		obj.put("isGlobalProxy", isGlobalProxy);
-		obj.put("isBypassApps", isBypassApps);
-		obj.put("isPAC", isPAC);
-
-		obj.put("port", port);
+			obj.put("isAuth", isAuth);
+			obj.put("isNTLM", isNTLM);
+			obj.put("isGlobalProxy", isGlobalProxy);
+			obj.put("isBypassApps", isBypassApps);
+			obj.put("isPAC", isPAC);
+			obj.put("port", port);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return obj;
 	}
 
 	static class JSONDecoder {
 		private final JSONObject obj;
 
-		public JSONDecoder(String values) throws ParseException {
-			JSONParser parser = new JSONParser();
-			obj = (JSONObject) parser.parse(values);
+		public JSONDecoder(String values) throws JSONException {
+			obj = new JSONObject(values);
 		}
 
 		public String getString(String key, String def) {
-			Object tmp = obj.get(key);
-			if (tmp != null)
-				return (String) tmp;
-			else
-				return def;
+			return obj.optString(key, def);
 		}
 
 		public int getInt(String key, int def) {
-			Object tmp = obj.get(key);
-			if (tmp != null) {
-				try {
-					return Integer.valueOf(tmp.toString());
-				} catch (NumberFormatException e) {
-					return def;
-				}
-			} else {
-				return def;
-			}
+			return obj.optInt(key, def);
 		}
 
-		public Boolean getBoolean(String key, Boolean def) {
-			Object tmp = obj.get(key);
-			if (tmp != null)
-				return (Boolean) tmp;
-			else
-				return def;
+		public boolean getBoolean(String key, boolean def) {
+			if (obj.has(key)) {
+				return obj.optBoolean(key, def);
+			}
+			return def;
 		}
 	}
 
@@ -197,7 +184,7 @@ public class Profile implements Serializable {
 
 		try {
 			jd = new JSONDecoder(values);
-		} catch (ParseException e) {
+		} catch (JSONException e) {
 			return;
 		}
 
@@ -207,7 +194,7 @@ public class Profile implements Serializable {
 		user = jd.getString("user", "");
 		password = jd.getString("password", "");
 		domain = jd.getString("domain", "");
-                certificate = jd.getString("certificate", "");
+		certificate = jd.getString("certificate", "");
 		bypassAddrs = jd.getString("bypassAddrs", "");
 		proxyedApps = jd.getString("Proxyed", "");
 
@@ -230,20 +217,15 @@ public class Profile implements Serializable {
 				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}", ia);
 
 		if (valid1 || valid2) {
-
 			return ia;
-
 		} else {
-
 			String addrString = null;
-
 			try {
 				InetAddress addr = InetAddress.getByName(ia);
 				addrString = addr.getHostAddress();
 			} catch (Exception ignore) {
 				addrString = null;
 			}
-
 			if (addrString != null) {
 				boolean valid3 = Pattern.matches(
 						"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}",
@@ -251,7 +233,6 @@ public class Profile implements Serializable {
 				if (!valid3)
 					addrString = null;
 			}
-
 			return addrString;
 		}
 	}
@@ -264,7 +245,7 @@ public class Profile implements Serializable {
 			if (ta != null)
 				ret.add(ta);
 		}
-		return ret.toArray(new String[ret.size()]);
+		return ret.toArray(new String[0]);
 	}
 
 	public static String encodeAddrs(String[] addrs) {
@@ -281,227 +262,54 @@ public class Profile implements Serializable {
 		return sb.substring(0, sb.length() - 1);
 	}
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+	// --- getters and setters ---
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
 
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+	public String getHost() { return host; }
+	public void setHost(String host) { this.host = host; }
 
+	public String getProxyType() { return proxyType; }
+	public void setProxyType(String proxyType) { this.proxyType = proxyType; }
 
-	/**
-	 * @return the host
-	 */
-	public String getHost() {
-		return host;
-	}
+	public int getPort() { return port; }
+	public void setPort(int port) { this.port = port; }
 
-	/**
-	 * @param host
-	 *            the host to set
-	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
+	public String getBypassAddrs() { return bypassAddrs; }
+	public void setBypassAddrs(String bypassAddrs) { this.bypassAddrs = bypassAddrs; }
 
-	/**
-	 * @return the proxyType
-	 */
-	public String getProxyType() {
-		return proxyType;
-	}
+	public String getUser() { return user; }
+	public void setUser(String user) { this.user = user; }
 
-	/**
-	 * @param proxyType
-	 *            the proxyType to set
-	 */
-	public void setProxyType(String proxyType) {
-		this.proxyType = proxyType;
-	}
+	public String getPassword() { return password; }
+	public void setPassword(String password) { this.password = password; }
 
-	/**
-	 * @return the port
-	 */
-	public int getPort() {
-		return port;
-	}
+	public String getCertificate() { return certificate; }
+	public void setCertificate(String certificate) { this.certificate = certificate; }
 
-	/**
-	 * @param port
-	 *            the port to set
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
+	public boolean isGlobalProxy() { return isGlobalProxy; }
+	public void setGlobalProxy(boolean isGlobalProxy) { this.isGlobalProxy = isGlobalProxy; }
 
-	/**
-	 * @return the bypassAddrs
-	 */
-	public String getBypassAddrs() {
-		return bypassAddrs;
-	}
+	public boolean isBypassApps() { return isBypassApps; }
+	public void setBypassApps(boolean isBypassApps) { this.isBypassApps = isBypassApps; }
 
-	/**
-	 * @param bypassAddrs
-	 *            the bypassAddrs to set
-	 */
-	public void setBypassAddrs(String bypassAddrs) {
-		this.bypassAddrs = bypassAddrs;
-	}
+	public boolean isAuth() { return isAuth; }
+	public void setAuth(boolean isAuth) { this.isAuth = isAuth; }
 
+	public boolean isNTLM() { return isNTLM; }
+	public void setNTLM(boolean isNTLM) { this.isNTLM = isNTLM; }
 
-	/**
-	 * @return the user
-	 */
-	public String getUser() {
-		return user;
-	}
+	public String getDomain() { return domain; }
+	public void setDomain(String domain) { this.domain = domain; }
 
-	/**
-	 * @param user
-	 *            the user to set
-	 */
-	public void setUser(String user) {
-		this.user = user;
-	}
+	public boolean isPAC() { return isPAC; }
+	public void setPAC(boolean isPAC) { this.isPAC = isPAC; }
 
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
+	public String getProxyedApps() { return proxyedApps; }
+	public void setProxyedApps(String proxyedApps) { this.proxyedApps = proxyedApps; }
 
-	/**
-	 * @param password
-	 *            the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	/**
-	 * @return the certificate
-	 */
-	public String getCertificate() {
-		return certificate;
-	}
-
-	/**
-	 * @param certificate
-	 *            the certificate to set
-	 */
-	public void setCertificate(String certificate) {
-		this.certificate = certificate;
-	}
-
-	/**
-	 * @return the isAutoSetProxy
-	 */
-	public Boolean isGlobalProxy() {
-		return isGlobalProxy;
-	}
-
-	/**
-	 * @param isGlobalProxy
-	 *            the isAutoSetProxy to set
-	 */
-	public void setGlobalProxy(Boolean isGlobalProxy) {
-		this.isGlobalProxy = isGlobalProxy;
-	}
-
-	/**
-	 * @return the isBypassApps
-	 */
-	public Boolean isBypassApps() {
-		return isBypassApps;
-	}
-
-	/**
-	 * @param isBypassApps
-	 *            the isBypassApps to set
-	 */
-	public void setBypassApps(Boolean isBypassApps) {
-		this.isBypassApps = isBypassApps;
-	}
-
-	/**
-	 * @return the isAuth
-	 */
-	public Boolean isAuth() {
-		return isAuth;
-	}
-
-	/**
-	 * @param isAuth
-	 *            the isAuth to set
-	 */
-	public void setAuth(Boolean isAuth) {
-		this.isAuth = isAuth;
-	}
-
-	/**
-	 * @return the isNTLM
-	 */
-	public Boolean isNTLM() {
-		return isNTLM;
-	}
-
-	/**
-	 * @param isNTLM
-	 *            the isNTLM to set
-	 */
-	public void setNTLM(Boolean isNTLM) {
-		this.isNTLM = isNTLM;
-	}
-
-	/**
-	 * @return the domain
-	 */
-	public String getDomain() {
-		return domain;
-	}
-
-	/**
-	 * @param domain
-	 *            the domain to set
-	 */
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-
-	/**
-	 * @return the isPAC
-	 */
-	public boolean isPAC() {
-		return isPAC;
-	}
-
-	/**
-	 * @param isPAC
-	 *            the isDNSProxy to set
-	 */
-	public void setPAC(boolean isPAC) {
-		this.isPAC = isPAC;
-	}
-
-	public void setProxyedApps(String proxyedApps) {
-		this.proxyedApps = proxyedApps;
-	}
-
-	public String getProxyedApps() {
-		return proxyedApps;
-	}
-
-	static class ProfileUtils {
+	// --- ProfileUtils ---
+	public static class ProfileUtils {
 		private static final String TAG = "ProfileUtils";
 
 		public static void renameProfile(String profile, String name, Context context) {
