@@ -282,7 +282,6 @@ public class ProxyDroidService extends Service {
         } else {
             startForeground(1, builder.build());
         }
-
     }
 
     @Override
@@ -299,9 +298,9 @@ public class ProxyDroidService extends Service {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
 
-        Intent intent = new Intent(this, ProxyDroid.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        pendIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        Intent intent = new Intent(this, ProxyDroidActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pendIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**

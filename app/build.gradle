@@ -1,3 +1,22 @@
+def localPropsFile = file("../local.properties")
+
+if (localPropsFile.exists()) {
+    def localProps = new Properties()
+    localPropsFile.withInputStream {
+        localProps.load(it)
+    }
+
+    localProps.each { key, value ->
+        project.ext.set(key, value)
+    }
+} else {
+    throw new GradleException(
+        "Missing local.properties.\n" +
+        "Create local.properties with your signing config.\n" +
+        "See local.properties.example for details."
+    )
+}
+
 apply plugin: 'com.android.application'
 android {
 	compileSdk 34
@@ -8,7 +27,7 @@ android {
 		minSdkVersion 21
 		targetSdkVersion 34
 		versionCode 1
-		versionName "1.0.0"
+		versionName "1.0.1"
 	}
 	signingConfigs {
 		common {

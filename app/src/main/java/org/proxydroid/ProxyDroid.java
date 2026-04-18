@@ -14,27 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- *                            ___====-_  _-====___
- *                      _--^^^#####//      \\#####^^^--_
- *                   _-^##########// (    ) \\##########^-_
- *                  -############//  |\^^/|  \\############-
- *                _/############//   (@::@)   \\############\_
- *               /#############((     \\//     ))#############\
- *              -###############\\    (oo)    //###############-
- *             -#################\\  / VV \  //#################-
- *            -###################\\/      \//###################-
- *           _#/|##########/\######(   /\   )######/\##########|\#_
- *           |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
- *           `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
- *              `   `  `      `   / | |  | | \   '      '  '   '
- *                               (  | |  | |  )
- *                              __\ | |  | | /__
- *                             (vvv(VVV)(VVV)vvv)
- *
- *                              HERE BE DRAGONS
- *
  */
 
 package org.proxydroid;
@@ -161,39 +140,47 @@ public class ProxyDroid extends PreferenceFragmentCompat
                 .show();
     }
 
-    private void CopyAssets() {
-        AssetManager assetManager = requireActivity().getAssets();
-        String[] files = null;
-        String abi = null;
-        abi = Build.SUPPORTED_ABIS[0];
-        try {
-            if (abi.matches("armeabi-v7a|arm64-v8a"))
-                files = assetManager.list("armeabi-v7a");
-            else
-                files = assetManager.list("x86");
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
-        }
-        if (files != null) {
-            for (String file : files) {
-                InputStream in = null;
-                OutputStream out = null;
-                try {
-                    if (abi.matches("armeabi-v7a|arm64-v8a"))
-                        in = assetManager.open("armeabi-v7a/" + file);
-                    else
-                        in = assetManager.open("x86/" + file);
-                    out = new FileOutputStream(requireActivity().getFilesDir().getAbsolutePath() + "/" + file);
-                    copyFile(in, out);
-                    in.close();
-                    out.flush();
-                    out.close();
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }
-    }
+	private void CopyAssets() {
+		AssetManager assetManager = requireActivity().getAssets();
+		String abi = Build.SUPPORTED_ABIS[0];
+		String assetDir;
+
+		if (abi.matches("armeabi-v7a"))
+			assetDir = "armeabi-v7a";
+		else if (abi.matches("arm64-v8a"))
+			assetDir = "arm64-v8a";
+		else if (abi.matches("x86"))
+			assetDir = "x86";
+		else
+			assetDir = "x86-64";
+
+		try {
+			copyAsset(assetManager, "proxy.sh", "proxy.sh");
+			copyAsset(assetManager,
+					assetDir + "/redsocks2",
+					"redsocks2");
+			copyAsset(assetManager,
+					assetDir + "/cntlm",
+					"cntlm");
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	private void copyAsset(AssetManager assetManager, String assetName, String outName) throws IOException {
+		InputStream in = assetManager.open(assetName);
+
+		OutputStream out = new FileOutputStream(
+				requireActivity().getFilesDir().getAbsolutePath()
+						+ "/"
+						+ outName);
+
+		copyFile(in, out);
+
+		in.close();
+		out.flush();
+		out.close();
+	}
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
