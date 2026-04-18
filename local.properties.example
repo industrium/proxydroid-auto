@@ -1,0 +1,5 @@
+sdk.dir=/path/to/android/sdk
+PROXY_KEYSTORE_PATH=/path/to/keystore
+PROXY_KEYSTORE_PASSWORD=change_me
+PROXY_KEY_ALIAS=alias
+PROXY_KEY_PASSWORD=change_me

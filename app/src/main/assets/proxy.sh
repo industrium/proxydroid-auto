@@ -3,7 +3,8 @@
 DIR=$1
 action=$2
 type=$3
-host=$4
+#host=$4
+host="127.0.0.1"
 port=$5
 auth=$6
 user=$7
@@ -28,8 +29,12 @@ write_non_http_config() {
   if [ "$auth" = "true" ]; then
     echo "
 redsocks {
-  bind = \"0.0.0.0:8123\";
-  relay = \"$host:$port\";
+  local_ip = 0.0.0.0;
+  local_port = 8123;
+
+  ip = $host;
+  port = $port;
+
   type = $type;
   login = \"$user\";
   password = \"$pass\";
@@ -38,8 +43,12 @@ redsocks {
   else
     echo "
 redsocks {
-  bind = \"0.0.0.0:8123\";
-  relay = \"$host:$port\";
+  local_ip = 0.0.0.0;
+  local_port = 8123;
+
+  ip = $host;
+  port = $port;
+
   type = $type;
 }
 " >>$DIR/redsocks.conf
@@ -50,16 +59,24 @@ write_http_config() {
   if [ "$auth" = "true" ]; then
     echo "
 redsocks {
-  bind = \"0.0.0.0:8123\";
-  relay = \"$host:$port\";
+  local_ip = 0.0.0.0;
+  local_port = 8123;
+
+  ip = $host;
+  port = $port;
+
   type = http-relay;
   login = \"$user\";
   password = \"$pass\";
 }
 redsocks {
-  bind = \"0.0.0.0:8124\";
-  relay = \"$host:$port\";
-  type = http-connect;
+  local_ip = 0.0.0.0;
+  local_port = 8124;
+
+  ip = $host;
+  port = $port;
+
+  type = http-relay;
   login = \"$user\";
   password = \"$pass\";
 }
@@ -67,13 +84,19 @@ redsocks {
   else
     echo "
 redsocks {
-  bind = \"0.0.0.0:8123\";
-  relay = \"$host:$port\";
-  type = http-relay;
+  local_ip = 0.0.0.0;
+  local_port = 8123;
+
+  ip = $host;
+  port = $port;
+  type = http-connect;
 }
 redsocks {
-  bind = \"0.0.0.0:8124\";
-  relay = \"$host:$port\";
+  local_ip = 0.0.0.0;
+  local_port = 8124;
+
+  ip = $host;
+  port = $port;
   type = http-connect;
 }
 " >>$DIR/redsocks.conf

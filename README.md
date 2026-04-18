@@ -15,7 +15,7 @@ I am a complete novice in Android development and used AI assistance.
 ## Usage
 > Note: Root access is required
 
-1. Install ProxyDroid Auto apk.
+1. Install ProxyDroidAuto.apk.
 2. Start the app for the first time to create the default configuration and activate the broadcast receiver.
 3. Grant root access when prompted.
 4. Enable autostart.
